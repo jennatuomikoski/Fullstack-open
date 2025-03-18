@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react'
-import axios from "axios"
+import axios from 'axios'
 
 // component to filters and show persons and shows on based search term
 const Persons = ({ persons, search, deleteData }) => {
@@ -55,11 +55,7 @@ const Notification = ({ message, type }) => {
   if (message === null) {
     return null
   }
-  return (
-    <div className={type === 'info' ? 'info' : 'error'}>
-      {message}
-    </div>
-  )
+  return <div className={type === 'info' ? 'info' : 'error'}>{message}</div>
 }
 
 const App = () => {
@@ -72,12 +68,14 @@ const App = () => {
 
   // useEffect to fetch data from db file
   useEffect(() => {
-    axios.get("http://localhost:3001/api/persons")
+    axios
+      .get('http://localhost:3001/api/persons')
       .then(response => {
         setPersons(response.data)
-      })
-      .catch(error => {
-        console.error("Error fetching data", error)
+      }
+      )
+      .catch((error) => {
+        console.error('Error fetching data', error)
       })
   }, [])
 
@@ -107,7 +105,7 @@ const App = () => {
         number: newNumber,
       }
       axios
-        .post("http://localhost:3001/api/persons", person)
+        .post('http://localhost:3001/api/persons', person)
         .then((response) => {
           setPersons(persons.concat(response.data)) // add new person to list
           setNewName('') // empties name input
@@ -120,14 +118,14 @@ const App = () => {
           }, 3000)
         })
         .catch((error) => {
-          console.error("Error adding person:", error);
-          setInfoMessage("Name or number is missing");
-          setMessageType('error');
+          console.error('Error adding person:', error)
+          setInfoMessage('Name or number is missing')
+          setMessageType('error')
           setTimeout(() => {
-            setInfoMessage(null);
-          }, 3000);
-        });
-      }
+            setInfoMessage(null)
+          }, 3000)
+        })
+    }
   }
 
   // delete person
@@ -147,7 +145,9 @@ const App = () => {
         // update error message
         .catch((error) => {
           console.error('Error deleting person', error)
-          setInfoMessage(`Information of ${name} has already been removed from server`)
+          setInfoMessage(
+            `Information of ${name} has already been removed from server`
+          )
           setMessageType('error')
           setTimeout(() => {
             setInfoMessage(null)
@@ -157,33 +157,41 @@ const App = () => {
   }
   //update phone number
   const updateData = (id, name) => {
-    const updatedPerson = { name, number: newNumber}
-    if (window.confirm(`${name} is already added to phonebook, replace the old number with a new one?`)) {
-      dataService
-      .update(id, updatedPerson)
-      .then(returnedPerson => {
-        setPersons(persons.map(person => person.id !== id ? person : returnedPerson))
-        setNewName('')
-        setNewNumber('')
-        // update info message
-        setInfoMessage(`Updated ${name}`)
-        setTimeout(() => {
-          setInfoMessage(null)
-        }, 3000)  
-      })
-      .catch(error => {
-        setInfoMessage(`Information of ${name} has already been removed from server`)
-        setMessageType('error')
-        setTimeout(() => {
-          setInfoMessage(null)
-        }, 3000)
-      })
+    /* const updatedPerson = { name, number: newNumber} */
+    if (
+      window.confirm(
+        `${name} is already added to phonebook, replace the old number with a new one?`
+      )
+    ) {
+      axios
+        .put(`http://localhost:3001/api/persons/${id}`)
+        .then((response) => {
+          setPersons(
+            persons.map((person) => (person.id !== id ? person : response.data))
+          )
+          setNewName('')
+          setNewNumber('')
+          // update info message
+          setInfoMessage(`Updated ${name}`)
+          setTimeout(() => {
+            setInfoMessage(null)
+          }, 3000)
+        })
+        .catch((error) => {
+          setInfoMessage(
+            `Information of ${name} has already been removed from server`
+          )
+          setMessageType('error')
+          setTimeout(() => {
+            setInfoMessage(null)
+          }, 3000)
+        })
     }
   }
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={infoMessage} type={messageType}/>
+      <Notification message={infoMessage} type={messageType} />
       <Filter search={search} handleSearch={handleSearch} />
       <h3>add a new</h3>
       <PersonForm
